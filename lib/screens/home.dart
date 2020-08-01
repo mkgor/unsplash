@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
               }
               if (state is AppError) {
                 return Center(
-                  child: Text('Unable to fetch photos'),
+                  child: Text(state.message),
                 );
               }
               if (state is AppLoaded) {

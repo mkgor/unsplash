@@ -15,87 +15,91 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   Stream<AppState> mapEventToState(AppEvent event) async* {
     dynamic currentState = state;
     print(event);
+    try {
+      if (event is FetchEvent) {
+        if (currentState is AppUninitialized) {
+          final photos = await this.repository.fetchPhotos(1);
 
-    if (event is FetchEvent) {
-      if (currentState is AppUninitialized) {
-        final photos = await this.repository.fetchPhotos(1);
-
-        yield AppLoaded(photos: photos, hasReachedMax: false, page: 1);
-      }
-      if (currentState is AppLoaded) {
-        int nextPage = event.initial ? 1 : currentState.page + 1;
-
-        final photos = await this.repository.fetchPhotos(nextPage);
-
-        List<Photo> newPhotos = [];
-
-        if (!event.clearAll) {
-          newPhotos = currentState.photos + photos;
-        } else {
-          newPhotos = photos;
+          yield AppLoaded(photos: photos, hasReachedMax: false, page: 1);
         }
 
-        yield AppLoaded(photos: newPhotos, hasReachedMax: false, page: nextPage);
-      }
-    }
+        if (currentState is AppLoaded) {
+          int nextPage = event.initial ? 1 : currentState.page + 1;
 
-    if (event is FetchWithQueryEvent) {
-      if (currentState is AppUninitialized) {
-        final photos = await this.repository.searchByKeywords(event.query, 1);
+          final photos = await this.repository.fetchPhotos(nextPage);
 
-        yield AppLoaded(photos: photos, hasReachedMax: false, page: 1);
-      }
-      if (currentState is AppLoaded) {
-        int nextPage = event.initial ? 1 : currentState.page + 1;
+          List<dynamic> newPhotos = [];
 
-        final photos = await this.repository.searchByKeywords(event.query, nextPage);
+          if (!event.clearAll) {
+            newPhotos = currentState.photos + photos;
+          } else {
+            newPhotos = photos;
+          }
 
-        List<Photo> newPhotos = [];
-
-        if (currentState.query == event.query) {
-          newPhotos = currentState.photos + photos;
-        } else {
-          newPhotos = photos;
+          yield AppLoaded(photos: newPhotos, hasReachedMax: false, page: nextPage);
         }
-
-        yield AppLoaded(photos: newPhotos, hasReachedMax: false, page: nextPage, query: event.query);
       }
-    }
 
-    if (event is LikeEvent) {
-      if (currentState is AppLoaded) {
-        final response = await this.repository.likePhoto(event.photoId);
+      if (event is FetchWithQueryEvent) {
+        if (currentState is AppUninitialized) {
+          final photos = await this.repository.searchByKeywords(event.query, 1);
 
-        final List updatedList = (state as AppLoaded).photos.map((photo) {
-          if (photo.id == event.photoId && photo is Photo) {
-            Photo newPhoto = photo.copyWith(likedByUser: true, likes: response['photo']['likes']);
+          yield AppLoaded(photos: photos, hasReachedMax: false, page: 1);
+        }
+        if (currentState is AppLoaded) {
+          int nextPage = event.initial ? 1 : currentState.page + 1;
 
-            return newPhoto;
+          final photos = await this.repository.searchByKeywords(event.query, nextPage);
+
+          List<dynamic> newPhotos = [];
+
+          if (currentState.query == event.query) {
+            newPhotos = currentState.photos + photos;
+          } else {
+            newPhotos = photos;
           }
 
-          return photo;
-        }).toList();
-
-        yield currentState.copyWith(photos: updatedList);
+          yield AppLoaded(photos: newPhotos, hasReachedMax: false, page: nextPage, query: event.query);
+        }
       }
-    }
 
-    if (event is UnlikeEvent) {
-      if (currentState is AppLoaded) {
-        final response = await this.repository.unlikePhoto(event.photoId);
+      if (event is LikeEvent) {
+        if (currentState is AppLoaded) {
+          final response = await this.repository.likePhoto(event.photoId);
 
-        final List updatedList = (state as AppLoaded).photos.map((photo) {
-          if (photo.id == event.photoId && photo is Photo) {
-            Photo newPhoto = photo.copyWith(likedByUser: false, likes: response['photo']['likes']);
+          final List updatedList = (state as AppLoaded).photos.map((photo) {
+            if (photo.id == event.photoId && photo is Photo) {
+              Photo newPhoto = photo.copyWith(likedByUser: true, likes: response['photo']['likes']);
 
-            return newPhoto;
-          }
+              return newPhoto;
+            }
 
-          return photo;
-        }).toList();
+            return photo;
+          }).toList();
 
-        yield currentState.copyWith(photos: updatedList);
+          yield currentState.copyWith(photos: updatedList);
+        }
       }
+
+      if (event is UnlikeEvent) {
+        if (currentState is AppLoaded) {
+          final response = await this.repository.unlikePhoto(event.photoId);
+
+          final List updatedList = (state as AppLoaded).photos.map((photo) {
+            if (photo.id == event.photoId && photo is Photo) {
+              Photo newPhoto = photo.copyWith(likedByUser: false, likes: response['photo']['likes']);
+
+              return newPhoto;
+            }
+
+            return photo;
+          }).toList();
+
+          yield currentState.copyWith(photos: updatedList);
+        }
+      }
+    } catch(e) {
+      yield AppError(message: e.toString());
     }
   }
 }

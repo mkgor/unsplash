@@ -16,8 +16,12 @@ class AppUninitialized extends AppState {
 }
 
 class AppError extends AppState {
+  final String message;
+
   @override
   String toString() => 'AppError';
+
+  AppError({this.message = "Something went wrong"});
 
   @override
   // TODO: implement props
