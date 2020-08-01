@@ -7,7 +7,7 @@ class APIRepository {
   static const SUCCESS_CODE = 200;
   static const CREATED_CODE = 201;
   static const PER_PAGE = 20;
-  static const AUTH_TOKEN = "0aOG9ieMwjIrnyqyXZuAfh9m_qZ4Fn-st_AYAZgzRCo";
+  static const AUTH_TOKEN = "EodtFpTSw3JPhSQ5AacfOQIeGX68tZVBiFB2gGhTxUQ";
 
   ///Fetching latest photos (showing on home screen)
   Future<List<Photo>> fetchPhotos(int page) async {
