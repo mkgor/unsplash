@@ -8,7 +8,7 @@ class FetchEvent extends AppEvent {
   final bool clearAll;
 
 
-  FetchEvent({this.clearAll});
+  FetchEvent({this.clearAll = false});
 
   @override
   List<Object> get props => [clearAll];
