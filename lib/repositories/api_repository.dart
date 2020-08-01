@@ -7,7 +7,7 @@ class APIRepository {
   static const SUCCESS_CODE = 200;
   static const CREATED_CODE = 201;
   static const PER_PAGE = 20;
-  static const AUTH_TOKEN = "_FTWve2Hgz0wM76SBMuGiTEF80BsQRUsVEDzxX3vgzo";
+  static const AUTH_TOKEN = "0aOG9ieMwjIrnyqyXZuAfh9m_qZ4Fn-st_AYAZgzRCo";
 
   ///Fetching latest photos (showing on home screen)
   Future<List<Photo>> fetchPhotos(int page) async {
@@ -44,8 +44,10 @@ class APIRepository {
 
   Future<List<Photo>> searchByKeywords(String query, int page) async {
     final response = await http.get(
-        "$API_URL/search/photos?query=$query&page=$page&per_page$PER_PAGE",
+        "$API_URL/search/photos?query=$query&page=$page&per_page=$PER_PAGE",
         headers: {"Authorization": "Bearer $AUTH_TOKEN"});
+
+    print("Request to: $API_URL/search/photos?query=$query&page=$page&per_page=$PER_PAGE");
 
     if (response.statusCode != SUCCESS_CODE) {
       throw Exception("API request failed with code: ${response.statusCode}");

@@ -5,10 +5,10 @@ abstract class AppEvent extends Equatable {
 }
 
 class FetchEvent extends AppEvent {
+  final bool initial;
   final bool clearAll;
 
-
-  FetchEvent({this.clearAll = false});
+  FetchEvent({this.initial = false, this.clearAll = false});
 
   @override
   List<Object> get props => [clearAll];
@@ -19,9 +19,10 @@ class FetchEvent extends AppEvent {
 }
 
 class FetchWithQueryEvent extends AppEvent {
+  final bool initial;
   final String query;
 
-  FetchWithQueryEvent({this.query});
+  FetchWithQueryEvent({this.initial = false, this.query});
 
   @override
   List<Object> get props => [query];

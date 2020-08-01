@@ -23,15 +23,19 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         yield AppLoaded(photos: photos, hasReachedMax: false, page: 1);
       }
       if (currentState is AppLoaded) {
-        final photos = await this.repository.fetchPhotos(currentState.page + 1);
+        int nextPage = event.initial ? 1 : currentState.page + 1;
+
+        final photos = await this.repository.fetchPhotos(nextPage);
 
         List<Photo> newPhotos = [];
 
         if (!event.clearAll) {
           newPhotos = currentState.photos + photos;
+        } else {
+          newPhotos = photos;
         }
 
-        yield photos.isEmpty ? currentState.copyWith(hasReachedMax: true) : AppLoaded(photos: newPhotos, hasReachedMax: false, page: currentState.page + 1);
+        yield AppLoaded(photos: newPhotos, hasReachedMax: false, page: nextPage);
       }
     }
 
@@ -42,15 +46,19 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         yield AppLoaded(photos: photos, hasReachedMax: false, page: 1);
       }
       if (currentState is AppLoaded) {
-        final photos = await this.repository.searchByKeywords(event.query, currentState.page + 1);
+        int nextPage = event.initial ? 1 : currentState.page + 1;
+
+        final photos = await this.repository.searchByKeywords(event.query, nextPage);
 
         List<Photo> newPhotos = [];
 
         if (currentState.query == event.query) {
           newPhotos = currentState.photos + photos;
+        } else {
+          newPhotos = photos;
         }
 
-        yield photos.isEmpty ? currentState.copyWith(hasReachedMax: true) : AppLoaded(photos: newPhotos, hasReachedMax: false, page: currentState.page + 1, query: event.query);
+        yield AppLoaded(photos: newPhotos, hasReachedMax: false, page: nextPage, query: event.query);
       }
     }
 

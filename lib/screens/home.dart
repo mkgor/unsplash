@@ -61,7 +61,7 @@ class _HomePageState extends State<HomePage> {
                         query = value;
 
                         /// Если строка не пустая, то получаем данные по запросу, если пустая - создаем событие по дефолтному получению данных но с полной очисткой фотографий
-                        AppEvent event = value.isEmpty ? FetchEvent(clearAll: true) : FetchWithQueryEvent(query: query);
+                        AppEvent event = value.isEmpty ? FetchEvent(initial:true, clearAll: true) : FetchWithQueryEvent(initial: true, query: query);
 
                         BlocProvider.of<AppBloc>(context).add(event);
                       },
