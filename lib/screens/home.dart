@@ -14,21 +14,25 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   ScrollController controller;
+
+  /// Блокирует запросы по загрузке новых изображений, пока не загрузятся изображения с новой страницы
   bool blockLoading = false;
+
+  /// Поисковый запрос
   String query;
 
   @override
   Widget build(BuildContext context) {
     controller = ScrollController()
       ..addListener(() {
+        /// Если дошли до конца страницы и загрузка не заблокирована, то запрашиваем новые данные
         if (controller.position.extentAfter < 300 && !blockLoading) {
+          /// Если не заблокировать - данные будут грузиться много раз
           blockLoading = true;
 
-          if (query == null || query == '') {
-            BlocProvider.of<AppBloc>(context).add(FetchEvent());
-          } else {
-            BlocProvider.of<AppBloc>(context).add(FetchWithQueryEvent(query: query));
-          }
+          /// Если поисковая строка не пустая - то загружаем новые данные по текущему поисковому запросу
+          AppEvent event = query == null || query == '' ? FetchEvent() : FetchWithQueryEvent(query: query);
+          BlocProvider.of<AppBloc>(context).add(event);
         }
       });
 
@@ -40,9 +44,7 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             flex: 1,
             child: Container(
-              margin: EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 10),
-              padding: EdgeInsets.all(0),
-              width: 500,
+              margin: EdgeInsets.all(10),
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(9), color: Color.fromRGBO(225, 225, 228, 1)),
               child: Row(
                 children: <Widget>[
@@ -58,11 +60,10 @@ class _HomePageState extends State<HomePage> {
                       onSubmitted: (value) {
                         query = value;
 
-                        if (value.isEmpty) {
-                          BlocProvider.of<AppBloc>(context).add(FetchEvent(clearAll: true));
-                        } else {
-                          BlocProvider.of<AppBloc>(context).add(FetchWithQueryEvent(query: query));
-                        }
+                        /// Если строка не пустая, то получаем данные по запросу, если пустая - создаем событие по дефолтному получению данных но с полной очисткой фотографий
+                        AppEvent event = value.isEmpty ? FetchEvent(clearAll: true) : FetchWithQueryEvent(query: query);
+
+                        BlocProvider.of<AppBloc>(context).add(event);
                       },
                       decoration: InputDecoration(border: InputBorder.none, hintText: 'Search'),
                     ),
@@ -95,6 +96,7 @@ class _HomePageState extends State<HomePage> {
                   );
                 }
 
+                /// После загрузки изображений - разблокируем возможность загружать новые
                 blockLoading = false;
 
                 return Expanded(
